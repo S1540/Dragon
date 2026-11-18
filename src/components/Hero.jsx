@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Services from "./services/Services";
 import DragonMark from "./DragonMark";
 import Strengths from "./strengths/Strengths";
+import PreviewModeSweep from "./PreviewModeSweep";
 const Earth = dynamic(() => import("./Earth"), { ssr: false });
 const services = [
   [
@@ -32,8 +33,54 @@ function Arrow() {
   return <span aria-hidden="true">&#8599;</span>;
 }
 export default function Hero() {
-  const [paused, setPaused] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [previewsPaused, setPreviewsPaused] = useState(false);
+  const [previewSweep, setPreviewSweep] = useState(0);
+  const [previewPosition, setPreviewPosition] = useState(null);
+  const [previewDragging, setPreviewDragging] = useState(false);
+  const previewDrag = useRef(null);
+  const suppressPreviewClick = useRef(false);
+  const previewControl = useRef(null);
+  useEffect(() => {
+    const keepInView = () => setPreviewPosition(position => {
+      if (!position) return position;
+      const bounds = previewControl.current.getBoundingClientRect();
+      return { x: position.x === 0 ? 0 : Math.max(0, window.innerWidth - bounds.width), y: Math.max(0, Math.min(position.y, window.innerHeight - bounds.height)) };
+    });
+    window.addEventListener('resize', keepInView);
+    return () => window.removeEventListener('resize', keepInView);
+  }, []);
+  function startPreviewDrag(event) {
+    if (event.button !== 0) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    suppressPreviewClick.current = false;
+    previewDrag.current = { x: event.clientX, y: event.clientY, left: bounds.left, top: bounds.top, width: bounds.width, height: bounds.height };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function movePreviewDrag(event) {
+    const drag = previewDrag.current;
+    if (!drag) return;
+    const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+    if (!suppressPreviewClick.current && Math.hypot(dx, dy) < 6) return;
+    suppressPreviewClick.current = true;
+    setPreviewDragging(true);
+    setPreviewPosition({ x: Math.max(0, Math.min(drag.left + dx, window.innerWidth - drag.width)), y: Math.max(0, Math.min(drag.top + dy, window.innerHeight - drag.height)) });
+  }
+  function endPreviewDrag(event) {
+    if (previewDrag.current && suppressPreviewClick.current) {
+      const width = previewDrag.current.width;
+      setPreviewPosition(position => position && ({ ...position, x: position.x + width / 2 < window.innerWidth / 2 ? 0 : Math.max(0, window.innerWidth - width) }));
+    }
+    setPreviewDragging(false);
+    previewDrag.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+  useEffect(() => {
+    if (!previewSweep) return;
+    const timer = setTimeout(() => setPreviewSweep(0), 1800);
+    return () => clearTimeout(timer);
+  }, [previewSweep]);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
   const header = useRef(null);
   const menuToggle = useRef(null);
   useEffect(() => {
@@ -62,6 +109,22 @@ export default function Hero() {
       document.removeEventListener("pointerdown", dismiss);
     };
   }, [menuOpen]);
+  useEffect(() => {
+    const onScroll = () => setHeaderScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  function togglePreviews() {
+    if (suppressPreviewClick.current) {
+      suppressPreviewClick.current = false;
+      return;
+    }
+    const next = !previewsPaused;
+    setPreviewsPaused(next);
+    setPreviewSweep(value => value + 1);
+    window.dispatchEvent(new CustomEvent("dragon:preview-toggle", { detail: { paused: next } }));
+  }
   const [dialogType, setDialogType] = useState("services");
   const [brief, setBrief] = useState("");
   const [saved, setSaved] = useState(false);
@@ -133,7 +196,7 @@ export default function Hero() {
       </a>
       <header
         ref={header}
-        className="site-header flex items-center justify-between"
+        className={`site-header flex items-center justify-between${headerScrolled ? " header-scrolled" : ""}`}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget))
             setMenuOpen(false);
@@ -158,7 +221,6 @@ export default function Hero() {
         </a>
         <nav aria-label="Main navigation" className="navigation">
           <a href="#hero-content">The experience</a>
-          <button onClick={() => openDialog("services")}>Our expertise</button>
         </nav>
         <button onClick={() => openDialog("project")} className="header-cta">
           Let’s talk <Arrow />
@@ -173,7 +235,7 @@ export default function Hero() {
           }
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          <span>{menuOpen ? "Close" : "Menu"}</span>
+          <span className="sr-only">{menuOpen ? "Close" : "Open"}</span>
           <span className="menu-icon" aria-hidden="true">
             <i />
             <i />
@@ -195,9 +257,6 @@ export default function Hero() {
             >
               The experience <Arrow />
             </a>
-            <button onClick={() => openDialog("services")}>
-              Our expertise <Arrow />
-            </button>
             <button
               className="mobile-contact"
               onClick={() => openDialog("project")}
@@ -207,6 +266,14 @@ export default function Hero() {
           </nav>
         </div>
       </header>
+      <button ref={previewControl} className="preview-control" type="button" role="switch" onClick={togglePreviews} aria-checked={!previewsPaused} aria-label="Animated previews" title="Click to switch previews. Drag to reposition."
+        onPointerDown={startPreviewDrag} onPointerMove={movePreviewDrag} onPointerUp={endPreviewDrag} onPointerCancel={endPreviewDrag}
+        style={{ touchAction: 'none', userSelect: 'none', cursor: previewDragging ? 'grabbing' : 'grab', transition: previewDragging ? 'none' : 'left .24s ease, top .24s ease, opacity .2s', ...(previewPosition ? { left: previewPosition.x, top: previewPosition.y, right: 'auto', bottom: 'auto', transform: 'none', borderRadius: previewPosition.x === 0 ? '0 6px 6px 0' : '6px 0 0 6px', borderRight: '1px solid #dce7ef18' } : {}) }}>
+        <span className="preview-control-dot" />
+        <span>Animated previews</span>
+        <strong aria-hidden="true">{previewsPaused ? "Off" : "On"}</strong>
+      </button>
+      {previewSweep > 0 && <PreviewModeSweep key={previewSweep} />}
       <section
         className="hero"
         onClick={energize}
@@ -223,10 +290,10 @@ export default function Hero() {
           <div className="stage-halo" />
           <div
             className="screen-stars"
-            style={{ animationPlayState: paused ? "paused" : "running" }}
+            style={{ animationPlayState: previewsPaused ? "paused" : "running" }}
           />
           <div className="earth-scene">
-            <Earth paused={paused} interaction={interaction} />
+            <Earth paused={previewsPaused} interaction={interaction} />
           </div>
           <div id="hero-content" className="hero-copy">
             <p className="eyebrow">DRAGON MEDIA · DIGITAL TECHNOLOGY STUDIO</p>
@@ -268,15 +335,7 @@ export default function Hero() {
             <span>
               <i className="status-dot" /> CREATIVITY MEETS TECHNOLOGY
             </span>
-            <button
-              onClick={() => setPaused(!paused)}
-              aria-label={
-                paused ? "Resume globe animation" : "Pause globe animation"
-              }
-            >
-              {paused ? "\u25B6" : "\u2161"}{" "}
-              <span>{paused ? "RESUME" : "LIVE EXPERIENCE"}</span>
-            </button>
+
           </div>
         </div>
         <div className="hero-footer">

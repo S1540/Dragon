@@ -45,7 +45,7 @@ const fs = require('fs');
     results.push('Keyboard arrows, End, focus pause without page scrolling');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(section).toHaveAttribute('data-running', 'false');
-    await expect(section.getByRole('button', { name: 'Pause strengths slideshow' })).toBeDisabled();
+    await expect(section.locator('.dm-strengths-hint')).toHaveText('Auto-advancing');
     for (const [width, height] of [[1440,1000],[1024,768],[768,1024],[390,844],[320,568]]) {
       await page.setViewportSize({ width, height });
       await choices.nth(0).click();

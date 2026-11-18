@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { strengths } from './data';
 import './Strengths.css';
 
@@ -12,7 +12,6 @@ export default function Strengths() {
   const root = useRef(null);
   const buttons = useRef([]);
   const progress = useRef(null);
-  const previous = useRef(0);
   const elapsed = useRef(0);
   const [active, setActive] = useState(0);
   const [cycle, setCycle] = useState(0);
@@ -29,16 +28,19 @@ export default function Strengths() {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     const syncMotion = () => setReduced(media.matches);
     const syncVisibility = () => setHidden(document.hidden);
+    const syncExternalPause = (event) => setPaused(Boolean(event.detail?.paused));
     syncMotion();
     syncVisibility();
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: .25 });
     observer.observe(root.current);
     media.addEventListener('change', syncMotion);
     document.addEventListener('visibilitychange', syncVisibility);
+    window.addEventListener('dragon:preview-toggle', syncExternalPause);
     return () => {
       observer.disconnect();
       media.removeEventListener('change', syncMotion);
       document.removeEventListener('visibilitychange', syncVisibility);
+      window.removeEventListener('dragon:preview-toggle', syncExternalPause);
     };
   }, []);
 
@@ -63,22 +65,6 @@ export default function Strengths() {
     return () => cancelAnimationFrame(frame);
   }, [running, active, cycle]);
 
-  useLayoutEffect(() => {
-    const old = previous.current;
-    previous.current = active;
-    if (old === active || reduced || window.matchMedia('(max-width: 760px)').matches) return;
-    const animations = buttons.current.map((button, index) => {
-      const from = (index - old + count) % count;
-      const to = (index - active + count) % count;
-      const row = button.offsetHeight;
-      const frames = to > from
-        ? [{ transform: `translateY(${from * row}px)`, opacity: 1 }, { transform: 'translateY(-24px)', opacity: 0, offset: .35 }, { transform: `translateY(${to * row}px)`, opacity: 0, offset: .6 }, { transform: `translateY(${to * row}px)`, opacity: 1 }]
-        : [{ transform: `translateY(${from * row}px)` }, { transform: `translateY(${to * row}px)` }];
-      return button.animate(frames, { duration: 650, easing: 'cubic-bezier(.22,1,.36,1)' });
-    });
-    return () => animations.forEach(animation => animation.cancel());
-  }, [active, reduced]);
-
   function select(index) {
     elapsed.current = 0;
     progress.current?.style.setProperty('--strength-progress', '0');
@@ -98,14 +84,21 @@ export default function Strengths() {
     buttons.current[next]?.focus({ preventScroll: true });
   }
 
+  function hoverEarth(event) {
+    if (event.pointerType !== 'mouse') return;
+    const bounds = root.current.querySelector('.dm-strengths-backdrop').getBoundingClientRect();
+    const overContent = event.target.closest('.dm-strengths-choice, .dm-strengths-controls, .dm-strengths-heading, .dm-strengths-story');
+    setHovered(!overContent && event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom);
+  }
+
   return <section ref={root} id="strengths" className="dm-strengths" aria-labelledby="strengths-title" data-active={active} data-running={running}
-    onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }}
+    onPointerEnter={hoverEarth} onPointerMove={hoverEarth}
     onPointerLeave={() => { setHovered(false); setTouching(false); }}
     onPointerDown={event => { if (event.pointerType !== 'mouse') setTouching(true); }}
     onPointerUp={() => setTouching(false)} onPointerCancel={() => setTouching(false)}
     onFocusCapture={event => { if (event.target.matches(':focus-visible')) setFocused(true); }}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
-    <div className="dm-strengths-backdrop" aria-hidden="true"><Image src="/textures/earth-poster.webp" alt="" fill sizes="(max-width: 760px) 100vw, 40vw" /></div>
+    <div className="dm-strengths-backdrop" aria-hidden="true"><Image src="/textures/strengths-earth-full.png" alt="" fill sizes="(max-width: 760px) 100vw, (max-width: 1440px) 42vw, 650px" /></div>
     <div className="dm-strengths-inner">
     <header className="dm-strengths-heading"><h2 id="strengths-title">The thinking behind<br /><span>what we build.</span></h2></header>
     <div className="dm-strengths-composition">
@@ -118,11 +111,11 @@ export default function Strengths() {
             {active === index && <span key={`${active}-${cycle}`} ref={progress} className="dm-strengths-progress" aria-hidden="true" />}
           </button>)}
         </nav>
-        <div className="dm-strengths-controls"><span>0{active + 1} <span>/ 05</span></span><button type="button" disabled={reduced} onClick={() => setPaused(value => !value)} aria-pressed={paused || reduced} aria-label={paused ? 'Play strengths slideshow' : 'Pause strengths slideshow'}>{reduced ? 'Manual exploration' : paused ? 'Play slideshow' : 'Pause slideshow'}<span aria-hidden="true">{paused || reduced ? '▷' : 'Ⅱ'}</span></button></div>
+        <div className="dm-strengths-controls"><span>0{active + 1} <span>/ 05</span></span><span className="dm-strengths-hint">Auto-advancing</span></div>
       </div>
       <div className="dm-strengths-story">
         {strengths.map((item, index) => <article key={item.title} id={`strength-panel-${index}`} className="dm-strengths-panel" data-active={active === index} aria-hidden={active !== index} inert={active !== index} aria-labelledby={`strength-headline-${index}`}>
-          <div className="dm-strengths-copy"><h3 id={`strength-headline-${index}`}>{item.headline}</h3><p>{item.description}</p></div>
+          <div className="dm-strengths-copy"><span className="dm-strengths-kicker">DRAGON MEDIA / APPROACH 0{index + 1}</span><h3 id={`strength-headline-${index}`}>{item.headline}</h3><p>{item.description}</p><p className="dm-strengths-detail">{item.detail}</p></div>
         </article>)}
       </div>
     </div>
