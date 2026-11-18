@@ -1,0 +1,15 @@
+{
+  "results": [
+    "Desktop chapter 1: visible, synchronized, three colored dots",
+    "Desktop chapter 2: visible, synchronized, three colored dots",
+    "Desktop chapter 3: visible, synchronized, three colored dots",
+    "Desktop chapter 4: visible, synchronized, three colored dots",
+    "Desktop chapter 5: visible, synchronized, three colored dots",
+    "Desktop chapter 6: visible, synchronized, three colored dots",
+    "Cursor motion, pause, service CTA and natural pin release passed",
+    "All six mobile chapters accessible with no horizontal overflow",
+    "Resize cleanup and reduced-motion natural layout passed",
+    "320px layout and existing mobile navigation passed"
+  ],
+  "errors": []
+}

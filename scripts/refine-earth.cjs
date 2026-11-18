@@ -1,0 +1,11 @@
+﻿const fs = require('fs');
+const file='src/components/Earth.jsx';
+let text=fs.readFileSync(file,'utf8');
+const start=text.indexOf('    // A fine orbital ribbon');
+const end=text.indexOf('    const positions=', start);
+text=text.slice(0,start)+text.slice(end);
+text=text.replace('vec3(.66,.77,.79)', 'vec3(.32,.44,.49)');
+text=text.replace('1.635 + random() * .012', '1.64 + Math.pow(random(), 4) * .07');
+text=text.replace('1.7 + Math.pow(random(), 3) * 6', '2.1 + Math.pow(random(), 2) * 7');
+text=text.replace('if(uSurface<.5)alpha*=.45', 'if(uSurface<.5)alpha*=.65');
+fs.writeFileSync(file,text);

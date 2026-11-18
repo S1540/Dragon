@@ -1,0 +1,19 @@
+{
+  "errors": [],
+  "rotates": true,
+  "pauses": true,
+  "reducedMotion": true,
+  "desktop": {
+    "overflow": false,
+    "sections": 1,
+    "resources": 1688363
+  },
+  "mobile": {
+    "overflow": false
+  },
+  "tablet": {
+    "overflow": false
+  },
+  "services": true,
+  "downloadName": "dragon-media-project-brief.txt"
+}

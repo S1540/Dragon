@@ -1,0 +1,5 @@
+const {chromium}=require('@playwright/test');
+(async()=>{const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--enable-unsafe-swiftshader']});try{const page=await browser.newPage();for(const [width,height] of [[1440,900],[1366,768],[768,1024],[390,844],[375,667],[320,568]]){await page.setViewportSize({width,height});await page.goto('http://localhost:3010',{waitUntil:'load',timeout:120000});await page.waitForTimeout(350);console.log(await page.evaluate(()=>({width:innerWidth,height:innerHeight,pageHeight:document.documentElement.scrollHeight,overflow:document.documentElement.scrollWidth>innerWidth,header:getComputedStyle(document.querySelector('header')).position,sections:document.querySelectorAll('section').length})));if(width===1440||width===390||width===375)await page.screenshot({path:`artifacts/fit-${width}.png`});}}finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});
+
+
+

@@ -1,0 +1,20 @@
+﻿/* Original Dragon artwork, animated at the native header scale. */
+.site-header .dragon-mark { display:block; position:relative; flex-shrink:0; width:57px; height:48px; overflow:visible; }
+.site-header .brand .dragon-mark svg { display:block; width:100%; height:100%; overflow:visible; }
+.dragon-mark-float { transform-origin:385px 240px; animation:dragon-mark-breathe 6s ease-in-out infinite; }
+.dragon-mark-aura { opacity:.32; animation:dragon-mark-aura 4.8s ease-in-out infinite; }
+.dragon-mark-trace { stroke-dasharray:10 90; stroke-dashoffset:0; opacity:.75; animation:dragon-mark-travel 5.6s linear infinite; }
+.dragon-mark-shimmer { opacity:0; animation:dragon-mark-metal 7.5s ease-in-out infinite; mix-blend-mode:screen; }
+.dragon-mark-eye { opacity:.55; animation:dragon-mark-eye 3.8s ease-in-out infinite; }
+.dragon-mark-sparks { opacity:0; animation:dragon-mark-sparks 5s ease-in-out infinite; }
+.brand-artwork:hover .dragon-mark-aura,.brand-artwork:focus-visible .dragon-mark-aura { opacity:.8; }
+.brand-artwork:hover .dragon-mark-trace { stroke-width:4; }
+.dragon-mark[data-active=false] * { animation-play-state:paused !important; }
+@keyframes dragon-mark-breathe { 0%,100% { transform:translateY(0) rotate(-.5deg); } 50% { transform:translateY(-4px) rotate(.5deg); } }
+@keyframes dragon-mark-aura { 0%,100% { opacity:.22; } 50% { opacity:.6; } }
+@keyframes dragon-mark-travel { to { stroke-dashoffset:-100; } }
+@keyframes dragon-mark-metal { 0%,15% { transform:translateX(0); opacity:0; } 22% { opacity:.8; } 60% { transform:translateX(1150px); opacity:.65; } 65%,100% { transform:translateX(1150px); opacity:0; } }
+@keyframes dragon-mark-eye { 0%,100% { opacity:.35; } 45%,55% { opacity:1; } }
+@keyframes dragon-mark-sparks { 0%,20%,100% { opacity:0; transform:translateY(3px); } 50% { opacity:.65; } 80% { opacity:0; transform:translateY(-12px); } }
+@media(max-width:700px) { .site-header .dragon-mark { width:45px; height:39px; } }
+@media(prefers-reduced-motion:reduce) { .dragon-mark * { animation:none !important; }.dragon-mark-aura { opacity:.2; }.dragon-mark-trace,.dragon-mark-shimmer,.dragon-mark-sparks { opacity:0; }.dragon-mark-eye { opacity:.4; } }

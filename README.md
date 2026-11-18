@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+﻿# Dragon Media
 
-## Getting Started
+A single cinematic hero in Next.js App Router, JavaScript/JSX and Tailwind CSS, with custom CSS for composition and a dynamically loaded Three.js Earth.
 
-First, run the development server:
+## Run
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `npm install`
+- `npm run dev`
+- `npm run build` for a production build
+- `npm start` to serve that build
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The page contains only a floating glass header and a viewport-fitted cinematic horizon hero. A fine-pointer cursor follower and a non-interactive-area click ripple accompany a brief Earth-light pulse. These effects respect reduced motion. The service CTA opens an accessible native dialog. Start a Project opens a local brief editor and downloads the result; it does not submit inquiries to a backend.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Rendering
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`src/components/Earth.jsx` owns the WebGL lifecycle. It uses a textured sphere, custom lighting shader, atmosphere, land-masked luminous points, drifting stars and soft bokeh particles. Geometry and pixel ratio are reduced on mobile. Rendering is skipped offscreen and in hidden tabs. Reduced motion, pause and low-power devices receive a static 3D view. A local rendered poster handles unavailable or lost WebGL contexts. Textures, geometry, materials, observers and renderer are disposed on unmount.
 
-## Learn More
+The desktop surface is 2048 pixels wide; the mobile surface and water map are 1024. The mobile maps total approximately 95 KB. No post-processing pipeline or animation framework is required.
 
-To learn more about Next.js, take a look at the following resources:
+## Validation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`node scripts/check-hero.cjs` runs the local Chrome browser checks at desktop, tablet and mobile sizes, checks rotation/pause/reduced motion, opens both CTA dialogs and verifies a brief download. It assumes the development server is running on localhost:3000 and Chrome is installed at the Windows path in the script. Screenshots and results are written to `artifacts/`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Assets
 
-## Deploy on Vercel
+Earth source maps come from the Three.js example planet textures:
+- https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg
+- https://threejs.org/examples/textures/planets/earth_specular_2048.jpg
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Optimized WebP derivatives are served locally from `public/textures`. `reference-hero.png` is the user-provided visual reference. The hero intentionally does not include its monitor enclosure.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

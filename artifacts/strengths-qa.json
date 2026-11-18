@@ -1,0 +1,14 @@
+{
+  "results": [
+    "Automatic advance and cyclic upward list movement",
+    "Click selects immediately; hover pauses; timer restarts and wraps after five seconds",
+    "Keyboard arrows, End, focus pause without page scrolling",
+    "1440px: five choices work, shared background, no overflow or clipped copy, 14px paragraphs",
+    "1024px: five choices work, shared background, no overflow or clipped copy, 14px paragraphs",
+    "768px: five choices work, shared background, no overflow or clipped copy, 14px paragraphs",
+    "390px: five choices work, shared background, no overflow or clipped copy, 14px paragraphs",
+    "320px: five choices work, shared background, no overflow or clipped copy, 14px paragraphs",
+    "Mobile autoplay preserves scroll position"
+  ],
+  "errors": []
+}
