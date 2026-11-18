@@ -7,6 +7,12 @@ import DragonMark from "./DragonMark";
 import Strengths from "./strengths/Strengths";
 import PreviewModeSweep from "./PreviewModeSweep";
 const Earth = dynamic(() => import("./Earth"), { ssr: false });
+const navigationItems = [
+  { label: 'Home', href: '#' },
+  { label: 'About', href: '#' },
+  { label: 'Services', href: '#' },
+  { label: 'Blog', href: '#' },
+];
 const services = [
   [
     "01",
@@ -196,7 +202,7 @@ export default function Hero() {
       </a>
       <header
         ref={header}
-        className={`site-header flex items-center justify-between${headerScrolled ? " header-scrolled" : ""}`}
+        className={`site-header${headerScrolled ? " header-scrolled" : ""}`}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget))
             setMenuOpen(false);
@@ -220,7 +226,7 @@ export default function Hero() {
           </span>
         </a>
         <nav aria-label="Main navigation" className="navigation">
-          <a href="#hero-content">The experience</a>
+          {navigationItems.map(item => <a key={item.label} href={item.href}>{item.label}</a>)}
         </nav>
         <button onClick={() => openDialog("project")} className="header-cta">
           Let’s talk <Arrow />
@@ -248,15 +254,16 @@ export default function Hero() {
           inert={!menuOpen}
         >
           <nav aria-label="Mobile navigation">
-            <a
-              href="#hero-content"
+            {navigationItems.map(item => <a
+              key={item.label}
+              href={item.href}
               onClick={() => {
                 setMenuOpen(false);
                 menuToggle.current?.focus();
               }}
             >
-              The experience <Arrow />
-            </a>
+              {item.label} <Arrow />
+            </a>)}
             <button
               className="mobile-contact"
               onClick={() => openDialog("project")}

@@ -12,7 +12,8 @@ a:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px sol
 ::selection { background: var(--blue); color: white; }
 .skip-link { position: fixed; top: -80px; left: 20px; z-index: 20; background: var(--cyan); color: var(--background); padding: 12px; }
 .skip-link:focus { top: 12px; }
-.site-header { height: 96px; max-width: 1600px; margin: auto; padding: 0 5.2%; border-bottom: 1px solid #dce7ef12; }
+.site-header { display:flex; align-items:center; justify-content:space-between; gap:24px; height: 96px; max-width: 1600px; margin: auto; padding: 0 5.2%; border-bottom: 1px solid #dce7ef12; }
+.site-header > .navigation, .site-header > .header-cta, .site-header > .menu-toggle { flex-shrink:0; white-space:nowrap; }
 .brand { display: flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 750; letter-spacing: -.8px; white-space: nowrap; }
 .brand svg { width: 38px; height: 38px; color: var(--cyan); }
 .brand-light { font-weight: 400; margin-left: 5px; }
@@ -278,8 +279,9 @@ h1 em { background: linear-gradient(105deg, #DCE7EF, #16D9E8); background-clip: 
  .hero-description { font-size: 12px; max-width: 36%; }
  .hero-actions { gap: 16px; }
 }
-@media(max-width:700px) {
+@media(max-width:900px) {
  .site-header { height: 62px; padding: 0 13px; border-radius: 4px; }
+ .site-header > .navigation { display:none; }
  .site-header > .header-cta { display: none; }
  .hero { padding-top: 84px; min-height: 640px; }
  .menu-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 0; min-width: 44px; min-height: 44px; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; color: #edf4f8; font-size: 13px; }
@@ -294,7 +296,7 @@ h1 em { background: linear-gradient(105deg, #DCE7EF, #16D9E8); background-clip: 
  .mobile-menu a, .mobile-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 58px; padding: 16px 4px; border: 0; border-bottom: 1px solid #dce7ef18; background: transparent; color: #e2ebf2; font-size: 15px; text-align: left; }
  .mobile-menu .mobile-contact { color: var(--cyan); border-bottom: 0; }
  .mobile-menu a:focus-visible, .mobile-menu button:focus-visible { outline-offset: -3px; }
- .mobile-menu a:hover, .mobile-menu button:hover { color: var(--cyan); }
+.mobile-menu a:hover, .mobile-menu button:hover { color: var(--cyan); }
  .hero-description { font-size: 12px; line-height: 1.8; width: auto; max-width: none; bottom: 18%; }
  .hero-copy > .eyebrow { font-size: 7px; letter-spacing: .8px; }
  .hero-actions { gap: 20px; }
